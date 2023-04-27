@@ -1,7 +1,24 @@
-import * as http from "http"; //import { createServer } from "http"; || const http = require("http");
-import * as mysql from "mysql"; //var mysql = require('mysql');
-import * as dotenv from "dotenv";
-dotenv.config();
+const http = require("http"); //import { createServer } from "http"; || import * as http from "http";
+const mysql = require('mysql'); //import * as mysql from "mysql";
+require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv = require("dotenv");
+
+
+
+//const express = require("express");
+
+// const app = express();
+
+// app.get("/lol", (req, res) => {
+// 	console.log(req.url);
+// 	res.setHeader("Content-Type", "application/json");
+// 	res.status(200).send({ "message": "page de lol" });
+// })
+
+// app.listen(3000, () => {
+// 	console.log('Serveur en écoute sur le port 3000.');
+// });
+//"start": "nodemon --watch app.js app.js"
+
 
 const connection = mysql.createConnection({
 	host: process.env.DB_HOST,
@@ -19,28 +36,26 @@ connection.connect((err) => {
 	console.log('Connecté à la base de données.');
 })
 
-// connection.query('SELECT 1 + 1 AS solution', function (error, results) {
-// 	if (error) throw error;
-// 	console.log('The solution is: ', results[0].solution);
-// });
-
-// Fermer la connexion à la base de données
-connection.end((err) => {
-	if (err) {
-		console.error('Erreur de déconnexion de la base de données : ' + err.stack);
-		return;
-	}
-	console.log('Déconnecté de la base de données.');
-});
 
 
-const requestListener = function (req, res) {
+const requestListener = (req, res) => {
 	res.setHeader("Content-Type", "application/json");
 
 	switch (req.url) {
-		case "/test":
-			res.writeHead(200);
-			res.end(`{"message": "Page de test!"}`);
+		case "/users":
+			connection.query("select * from user", (err, rows) => {
+				if (err) {
+					console.error('Erreur de requête SQL : ' + err.stack);
+					res.writeHead(500);
+					res.end(`{"message": "Erreur de serveur."}`);
+					return;
+				}
+
+				//res.end(JSON.parse(JSON.stringify(rows[0])));
+				//console.log(structuredClone(rows[0])); //JSON.parse(JSON.stringify(rows))
+				//res.end(structuredClone(rows[0]));
+				res.end(JSON.stringify(rows));
+			})
 			break;
 
 		default:
@@ -50,21 +65,15 @@ const requestListener = function (req, res) {
 	}
 };
 
+// Fermer la connexion à la base de données
+// connection.end((err) => {
+// 	if (err) {
+// 		console.error('Erreur de déconnexion de la base de données : ' + err.stack);
+// 		return;
+// 	}
+// 	console.log('Déconnecté de la base de données.');
+// });
+
 http.createServer(requestListener).listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
 	console.log(`Server is running on http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
 });
-
-
-// const express = require("express");
-// const app = express();
-// const port = 3000;
-
-// app.get("/", (req, res) => {
-// 	//res.send("Hello World!");
-// 	res.send("Okayyyyy");
-// });
-
-// app.listen(port, () => {
-// 	console.log(`Example app listening on port ${port}`);
-// });
-//"start": "nodemon --watch app.js app.js"
