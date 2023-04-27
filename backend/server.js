@@ -1,22 +1,21 @@
 const http = require("http"); //import { createServer } from "http"; || import * as http from "http";
+const url = require("url");
 const mysql = require('mysql'); //import * as mysql from "mysql";
 require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv = require("dotenv");
 
+const express = require("express");
+
+const app = express();
+
+app.get("/", (req, res) => {
+	res.setHeader("Content-Type", "application/json");
+	res.status(200).send({ "message": "page /" });
+})
 
 
-//const express = require("express");
-
-// const app = express();
-
-// app.get("/lol", (req, res) => {
-// 	console.log(req.url);
-// 	res.setHeader("Content-Type", "application/json");
-// 	res.status(200).send({ "message": "page de lol" });
-// })
-
-// app.listen(3000, () => {
-// 	console.log('Serveur en écoute sur le port 3000.');
-// });
+app.listen(3000, "localhost", () => {
+	console.log('Serveur en écoute sur le port 3000.');
+})
 //"start": "nodemon --watch app.js app.js"
 
 
@@ -57,6 +56,25 @@ const requestListener = (req, res) => {
 				res.end(JSON.stringify(rows));
 			})
 			break;
+
+		case "/hello":
+			//console.log(url.parse(req.url, true).pathname.replace(/^\/+|\/+$/g, ''));
+			const parsedUrl = url.parse(req.url, true);
+			const path = parsedUrl.pathname;
+			const trimmedPath = path.replace(/^\/+|\/+$/g, '');
+			console.log(trimmedPath);
+
+
+			if (trimmedPath === 'hello') {
+				const name = parsedUrl.query.name || 'World';
+				res.setHeader('Content-Type', 'application/json');
+				res.end(JSON.stringify({ message: `Hello, ${name}!` }));
+			} else {
+				res.writeHead(404);
+				res.end();
+			}
+			break;
+
 
 		default:
 			res.writeHead(200);
