@@ -1,6 +1,6 @@
 //const http = require("http"); //import { createServer } from "http"; || import * as http from "http";
 const mysql = require('mysql'); //import * as mysql from "mysql";
-require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv = require("dotenv");
+require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv = require("dotenv"); || import ("dotenv/config");
 
 const express = require("express");
 const app = express();
@@ -16,10 +16,10 @@ const connection = mysql.createConnection({
 // Connecter à la base de données
 connection.connect((err) => {
 	if (err) {
-		console.error('Erreur de connexion à la base de données : ' + err.stack);
+		console.error('Error while connecting to the database: ' + err.stack);
 		return;
 	}
-	console.log('Connecté à la base de données.');
+	console.log('Connected to the database.');
 });
 
 
@@ -27,24 +27,25 @@ connection.connect((err) => {
 app.get("/", (req, res) => {
 	res.status(200).json({message: "Connected!"});
 });
-app.get("/users", (req , res) => {
-	if (Object.keys(req.query).length !== 0) {
-		const login = req.query.login.toLowerCase() + "%";
 
-		connection.query("select * from user where login like ?", login, (err, rows) => {
-			if (err) {
-				console.error('Erreur de requête SQL : ' + err.stack);
-				res.status(500).json({message: "Erreur de serveur."});
-				return;
-			}
+app.get("/users", (req, res) => {
+	// if (Object.keys(req.query).length !== 0) {
+	// 	const login = req.query.login.toLowerCase() + "%";
+
+	// 	connection.query("select * from user where login like ?", login, (err, results) => {
+	// 		if (err) {
+	// 			console.error('Erreur de requête SQL : ' + err.stack);
+	// 			res.status(500).json({message: "Erreur de serveur."});
+	// 			return;
+	// 		}
 	
-			res.status(200).json(rows);
-		});
-	} else {
-		connection.query("select * from user", (err, rows) => {
+	// 		res.status(200).json(results);
+	// 	});
+	// } else {
+		connection.query("select * from user", (err, results) => {
 			if (err) {
-				console.error('Erreur de requête SQL : ' + err.stack);
-				res.status(500).json({message: "Erreur de serveur."});
+				console.error('Error SQL query: ' + err.stack);
+				res.status(500).json({message: "Server error."});
 				return;
 			}
 	
@@ -53,29 +54,28 @@ app.get("/users", (req , res) => {
 			//res.end(structuredClone(rows[0]));
 			//res.end(JSON.stringify(rows));
 	
-			res.status(200).json(rows);
+			res.status(200).json(results);
 		});
-	}
+	//}
 });
 app.get("/users/:id", (req, res) => {
 	const userId = req.params.id;
 
-	connection.query("select * from user where id = ?", userId, (err, rows) => {
+	connection.query("select * from user where id = ?", userId, (err, results) => {
 		if (err) {
-			console.error('Erreur de requête SQL : ' + err.stack);
-			res.status(500).json({message: "Erreur de serveur."});
+			console.error('Erorr SQL query: ' + err.stack);
+			res.status(500).json({message: "Server erorr."});
 			return;
 		}
 
-		res.status(200).json(rows);
+		res.status(200).json(results.shift());
 	});
 });
 
 
 app.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
 	console.log(`Server is running on http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
-})
-//"start": "nodemon --watch app.js app.js"
+});
 
 
 
