@@ -1,0 +1,35 @@
+import { useState, useEffect } from "react";
+import { Loading } from "../utils/loading";
+
+const [users, setUsers] = useState([]);
+
+	useEffect(() => {
+		fetch("http://localhost:3001/users")
+		.then((res) => {
+			if (res.ok) {
+				return res.json();
+			} else {
+				throw new Error(res.status);
+			}
+		})
+		.then((res) => {
+			console.log(res);
+			setUsers(res);
+		})
+		.catch((err) => {
+			console.log(err);
+		});
+	}, [])
+
+
+	return (
+		<>
+			{
+				users.length !== 0 ? 
+				users.map((user) => (
+					<p key={user.id}>last: {user.lastname}, first: {user.firstname}</p>
+				))
+				: <Loading />
+			}
+		</>
+	);

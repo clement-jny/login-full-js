@@ -3,7 +3,10 @@ const mysql = require('mysql'); //import * as mysql from "mysql";
 require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv = require("dotenv"); || import ("dotenv/config");
 
 const express = require("express");
+const cors = require('cors');
+
 const app = express();
+app.use(cors());
 
 
 const connection = mysql.createConnection({
