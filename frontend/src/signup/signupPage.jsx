@@ -2,6 +2,9 @@ import { useState } from "react";
 
 export const SignupPage = () => {
 	const [lastname, setLastname] = useState("");
+	const [firstname, setFirstname] = useState("");
+	const [login, setLogin] = useState("");
+	const [password, setPassword] = useState("");
 
 	const handleClick = (e) => {
 		e.preventDefault();
@@ -10,7 +13,19 @@ export const SignupPage = () => {
 	const handleSubmit = event => {
 		event.preventDefault();
 
-		alert(lastname);
+		fetch("http://localhost:3001/users", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				login: "admin",
+				password: "admin"
+			})
+		})
+		.then(response => response.json())
+		.then(data => console.log(data))
+		.catch(error => console.error(error))
 	}
 
 	const handleChange = (e) => {
@@ -26,7 +41,7 @@ export const SignupPage = () => {
 					Lastname
 					<input type="text" name="lastname" onChange={handleChange} />
 				</label>
-				
+
 				<label>
 					Firstname
 					<input type="text" name="firstname" />
@@ -42,8 +57,8 @@ export const SignupPage = () => {
 					<input type="text" name="password" />
 				</label>
 
-				<input type="submit" onClick={handleClick} />
-				<button type="submit" />
+				{/* <input type="submit" onClick={handleClick} /> */}
+				<button type="submit">sub</button>
 			</form>
 		</>
 	);

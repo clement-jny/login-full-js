@@ -4,9 +4,11 @@ require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv 
 
 const express = require("express");
 const cors = require('cors');
+const bodyParser = require('body-parser')
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json())
 
 
 const connection = mysql.createConnection({
@@ -61,6 +63,12 @@ app.get("/users", (req, res) => {
 		});
 	//}
 });
+
+app.post("/users", (req, res) => {
+	console.log(req.body);
+	res.status(200).send({ message: "ok"});
+})
+
 app.get("/users/:id", (req, res) => {
 	const userId = req.params.id;
 
