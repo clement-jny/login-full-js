@@ -1,5 +1,4 @@
 //import React from 'react';
-//import { createRoot, render} 
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
