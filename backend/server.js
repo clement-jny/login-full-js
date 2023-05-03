@@ -4,7 +4,8 @@ require("dotenv").config();// import * as dotenv from "dotenv"; || const dotenv 
 
 const express = require("express");
 const cors = require('cors');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+//const { checkIfExist } = require('./helper/user');
 
 const app = express();
 app.use(cors());
@@ -18,7 +19,7 @@ const connection = mysql.createConnection({
 	database: process.env.DB_DATABASE
 });
 
-// Connecter à la base de données
+// Database connection
 connection.connect((err) => {
 	if (err) {
 		console.error('Error while connecting to the database: ' + err.stack);
@@ -28,12 +29,15 @@ connection.connect((err) => {
 });
 
 
-
+/* GET Route '/' -> send json response */
 // app.get("/", (req, res) => {
-// 	res.status(200).json({message: "Connected!"});
+// 	res.status(200).json({ message: "Connected!" });
 // });
 
+/* GET Route '/users' ->  */
 app.get("/users", (req, res) => {
+
+	/* If some queries, query db with the value */
 	// if (Object.keys(req.query).length !== 0) {
 	// 	const login = req.query.login.toLowerCase() + "%";
 
@@ -47,35 +51,70 @@ app.get("/users", (req, res) => {
 	// 		res.status(200).json(results);
 	// 	});
 	// } else {
-		connection.query("select * from user", (err, results) => {
-			if (err) {
-				console.error('Error SQL query: ' + err.stack);
-				res.status(500).json({message: "Server error."});
-				return;
-			}
-	
-			//res.end(JSON.parse(JSON.stringify(rows[0])));
-			//console.log(structuredClone(rows[0])); //JSON.parse(JSON.stringify(rows))
-			//res.end(structuredClone(rows[0]));
-			//res.end(JSON.stringify(rows));
-	
-			res.status(200).json(results);
-		});
+
+	/* Fecth all users, if error send error. Send the result of the query */
+	connection.query("select * from user", (err, results) => {
+		if (err) {
+			console.error('Error SQL query: ' + err.stack);
+			res.status(500).json({ message: "Server error." });
+			return;
+		}
+
+		//res.end(JSON.parse(JSON.stringify(rows[0])));
+		//console.log(structuredClone(rows[0])); //JSON.parse(JSON.stringify(rows))
+		//res.end(structuredClone(rows[0]));
+		//res.end(JSON.stringify(rows));
+
+		res.status(200).json(results);
+	});
 	//}
 });
 
-app.post("/users", (req, res) => {
-	console.log(req.body);
-	res.status(200).send({ message: "ok"});
-})
 
+/* POST Route '/users' ->  */
+app.post("/users", (req, res) => {
+	// { lastname: '', firstname: 'a', login: 'a', password: 'a' }
+
+	const { lastname, firstname, login, password } = req.body;
+
+	//const newAccount = false;
+	//const resultExist = checkIfExist(login, password);
+	//console.log(resultExist);
+
+	connection.query("insert into user (lastname, firstname, login, password) values (?, ?, ?, ?)", [lastname, firstname, login, password], (err, results) => {
+		if (err) {
+			console.error('Error SQL query: ' + err.stack);
+			res.status(500).json({ message: "Server error." });
+			return;
+		}
+
+		//console.log(results);
+		res.status(201).json({ message: "You have been registred" });
+	});
+
+	//if (newAccount) {
+		// connection.query("insert into user (lastname, firstname, login, password) values (?, ?, ?, ?)", [lastname, firstname, login, password], (err, results) => {
+		// 	if (err) {
+		// 		console.error('Error SQL query: ' + err.stack);
+		// 		res.status(500).json({ message: "Server error." });
+		// 		return;
+		// 	}
+
+		// 	console.log(results);
+		// });
+
+		//res.status(201).json({ message: "no res" });
+	//}
+});
+
+/* GET Router '/users/id' -> send a user by an id or send error */
 app.get("/users/:id", (req, res) => {
 	const userId = req.params.id;
 
 	connection.query("select * from user where id = ?", userId, (err, results) => {
 		if (err) {
 			console.error('Erorr SQL query: ' + err.stack);
-			res.status(500).json({message: "Server erorr."});
+			res.status(500).json({ message: "Server erorr." });
 			return;
 		}
 
@@ -83,7 +122,7 @@ app.get("/users/:id", (req, res) => {
 	});
 });
 
-
+/* Listen on the port and the host */
 app.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
 	console.log(`Server is running on http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
 });
